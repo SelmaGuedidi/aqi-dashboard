@@ -7,7 +7,7 @@ import { StateService, SelectedElements } from './state.service';
   providedIn: 'root',
 })
 export class ApiService {
-  URL = 'http://127.0.0.1:5000';
+  URL = 'http://aqi-apis-flask-env.eba-mjnqwgme.us-east-2.elasticbeanstalk.com/';
   http = inject(HttpClient);
 
   states = inject(StateService);
