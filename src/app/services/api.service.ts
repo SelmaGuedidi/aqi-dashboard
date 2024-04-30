@@ -22,11 +22,12 @@ export class ApiService {
 
     if (elements.state) {
       params = params.set('state', elements.state);
+      if (elements.county) {
+        params = params.set('county', elements.county);
+      }
     }
 
-    if (elements.county) {
-      params = params.set('county', elements.county);
-    }
+    
 
     return this.http.get<S>(url, { params });
   }
