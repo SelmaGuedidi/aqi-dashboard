@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewChild, inject } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   MapsModule,
@@ -10,7 +10,6 @@ import {
   MapsComponent,
   HighlightService,
   SelectionService,
-  ZoomService,
 } from '@syncfusion/ej2-angular-maps';
 import { DataService } from '../../services/data.service';
 import { StateService } from '../../services/state.service';
@@ -46,11 +45,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     SelectionService,
     ColorMappingSettings,
     LayerSettings,
-    ZoomService
+    ZoomSettings,
   ],
   templateUrl: './interactive-map.component.html',
   styleUrl: './interactive-map.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InteractiveMapComponent {
   public layerOptions$: Observable<any[]>;
@@ -92,14 +90,14 @@ export class InteractiveMapComponent {
 
   constructor(private service: DataService, private http: HttpClient) {
     this.selectedElement$ = this.stateService.selectedElements$.pipe(
-      distinctUntilChanged((prev, next) => prev.state == next.state && prev.county == next.county),
+      distinctUntilChanged((prev, next) => prev.state == next.state),
       map((elements) =>
         elements.county
           ? elements.county + ', ' + elements.state
           : elements.state ?? ''
       )
     );
-    this.states$ = http.get('United States of America.json');
+    this.states$ = http.get('assets/United States of America.json');
     this.counties$ = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
@@ -120,6 +118,7 @@ export class InteractiveMapComponent {
       map(([mapData, values]) => {
         if (mapData.crs){
           this.colors = this.getColorMapping(values)
+          console.log(this.colors)        
         }
         return [
           {
@@ -177,7 +176,7 @@ export class InteractiveMapComponent {
     const requests: Observable<any>[] = [];
 
     states.forEach((state) => {
-      const request = this.http.get(`${state}.json`);
+      const request = this.http.get(`assets/counties/${state}.json`);
       requests.push(request);
     });
 
@@ -210,12 +209,8 @@ export class InteractiveMapComponent {
     // Generate color mapping for each range
     let colors = [];
     for (let i = 3; i >= 0; i--) {
-      let from =parseFloat((min + i * step).toFixed(2));
-      let to = parseFloat((min + (i + 1) * step).toFixed(2));
-      if (Math.floor(from) !== Math.floor(to)){
-        from = Math.round(from)
-        to = Math.round(to)
-      }
+      const from = Math.floor(min + i * step);
+      const to = Math.floor(min + (i + 1) * step);
       colors.push({ from, to, color: [catColors[i]] });
     }
 
