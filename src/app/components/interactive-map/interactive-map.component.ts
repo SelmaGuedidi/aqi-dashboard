@@ -99,7 +99,7 @@ export class InteractiveMapComponent {
           : elements.state ?? ''
       )
     );
-    this.states$ = http.get('assets/United States of America.json');
+    this.states$ = http.get('/United States of America.json');
     this.counties$ = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
@@ -177,7 +177,7 @@ export class InteractiveMapComponent {
     const requests: Observable<any>[] = [];
 
     states.forEach((state) => {
-      const request = this.http.get(`assets/counties/${state}.json`);
+      const request = this.http.get(`${state}.json`);
       requests.push(request);
     });
 
