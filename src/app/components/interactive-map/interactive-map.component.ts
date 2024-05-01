@@ -102,11 +102,11 @@ export class InteractiveMapComponent {
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
       switchMap((values) => {
-        console.log(values);
         return this.stateService.selectedElements$.pipe(
           switchMap((elements) => {
-            console.log("in switch map")
-            return elements.state ? this.counties[elements.state!] : this.states$;
+            let data = elements.state ? this.counties[elements.state!] : this.states$;
+            console.log(data)
+            return data
           }),
           map((mapData) => {
             console.log("Updating Map...");
@@ -161,12 +161,9 @@ export class InteractiveMapComponent {
     this.usMapSelected = false;
    
     const selectedShape: string = (args.data as any)['name'];
-    console.log(selectedShape)
     if (this.stateService.state == null) {
-      console.log("Updating State ...")
       this.stateService.setSelectedState(selectedShape);
     } else {
-      console.log("Updating County ...")
       this.stateService.setSelectedCounty(selectedShape);
     }
   }
