@@ -90,14 +90,14 @@ export class InteractiveMapComponent {
 
   constructor(private service: DataService, private http: HttpClient) {
     this.selectedElement$ = this.stateService.selectedElements$.pipe(
-      distinctUntilChanged((prev, next) => prev.state == next.state),
+      distinctUntilChanged((prev, next) => prev.state == next.state  && prev.county == next.county),
       map((elements) =>
         elements.county
           ? elements.county + ', ' + elements.state
           : elements.state ?? ''
       )
     );
-    this.states$ = http.get('assets/United States of America.json');
+    this.states$ = http.get('United States of America.json');
     this.counties$ = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
@@ -105,7 +105,7 @@ export class InteractiveMapComponent {
         this.stateService.selectedElements$.pipe(
           distinctUntilChanged(
             (prev, next) =>
-              prev.state == next.state && prev.element == prev.element
+              prev.state == next.state 
           ),
           switchMap((elements) => {
             return elements.state
@@ -162,6 +162,7 @@ export class InteractiveMapComponent {
   public shapeSelected(args: any): void {
     this.usMapSelected = false;
     const selectedShape: string = (args.data as any)['name'];
+    console.log(selectedShape)
     if (this.stateService.state == null) {
       this.stateService.setSelectedState(selectedShape);
     } else this.stateService.setSelectedCounty(selectedShape);
@@ -176,7 +177,7 @@ export class InteractiveMapComponent {
     const requests: Observable<any>[] = [];
 
     states.forEach((state) => {
-      const request = this.http.get(`assets/counties/${state}.json`);
+      const request = this.http.get(`${state}.json`);
       requests.push(request);
     });
 
