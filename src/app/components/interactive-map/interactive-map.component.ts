@@ -6,10 +6,10 @@ import {
   LegendService,
   ColorMappingSettings,
   LayerSettings,
-  ZoomSettings,
   MapsComponent,
   HighlightService,
   SelectionService,
+  ZoomService,
 } from '@syncfusion/ej2-angular-maps';
 import { DataService } from '../../services/data.service';
 import { StateService } from '../../services/state.service';
@@ -45,7 +45,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     SelectionService,
     ColorMappingSettings,
     LayerSettings,
-    ZoomSettings,
+    ZoomService,
   ],
   templateUrl: './interactive-map.component.html',
   styleUrl: './interactive-map.component.css',
@@ -105,7 +105,6 @@ export class InteractiveMapComponent {
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
       switchMap((values) => {
-        console.log("in switch")
         return this.stateService.state
           ? this.counties[this.stateService.state!].pipe(
               map((mapData) => ({ mapData, values }))
@@ -114,7 +113,6 @@ export class InteractiveMapComponent {
         }
       ),
       map(({ mapData, values }) => {
-        console.log('Updating Map...');
         if (mapData.crs) {
           this.colors = this.getColorMapping(values);
         }
@@ -153,7 +151,6 @@ export class InteractiveMapComponent {
             },
           },
         ];
-        console.log(layers);
         return layers;
       })
     );
@@ -166,7 +163,9 @@ export class InteractiveMapComponent {
     if (this.stateService.state == null) {
       this.stateService.setSelectedState(selectedShape);
     } else {
-      this.stateService.setSelectedCounty(selectedShape);
+      if (selectedShape !== this.stateService.county)
+        this.stateService.setSelectedCounty(selectedShape);
+      else this.stateService.setSelectedCounty(null);
     }
   }
 
