@@ -15,13 +15,16 @@ import { DataService } from '../../services/data.service';
 import { StateService } from '../../services/state.service';
 
 import {
+  BehaviorSubject,
   Observable,
+  Subject,
   combineLatest,
   distinctUntilChanged,
   forkJoin,
   map,
   of,
   switchMap,
+  tap,
 } from 'rxjs';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { states } from '../../utils/states';
@@ -54,6 +57,7 @@ export class InteractiveMapComponent {
   public layerOptions$: Observable<any[]>;
   @ViewChild('maps') maps!: MapsComponent;
 
+  loading$ = new BehaviorSubject(true)
   usMapSelected = true;
 
   public LegendOptions: Object = {
@@ -100,7 +104,7 @@ export class InteractiveMapComponent {
           : elements.state ?? ''
       )
     );
-    this.states$ = http.get('United States of America.json');
+    this.states$ = http.get('assets/United States of America.json');
     this.counties = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
@@ -152,7 +156,8 @@ export class InteractiveMapComponent {
           },
         ];
         return layers;
-      })
+      }),
+      tap(()=> this.loading$.next(false))
     );
   }
 
@@ -161,6 +166,7 @@ export class InteractiveMapComponent {
 
     const selectedShape: string = (args.data as any)['name'];
     if (this.stateService.state == null) {
+      this.loading$.next(true)
       this.stateService.setSelectedState(selectedShape);
     } else {
       if (selectedShape !== this.stateService.county)
@@ -170,6 +176,7 @@ export class InteractiveMapComponent {
   }
 
   returnToUSAMap() {
+    this.loading$.next(true)
     this.usMapSelected = true;
     this.stateService.setSelectedState(null);
   }
@@ -177,7 +184,7 @@ export class InteractiveMapComponent {
   private loadCountyData(): { [key: string]: Observable<Object> } {
     const requests: { [key: string]: Observable<Object> } = {};
     states.forEach((state) => {
-      const request = this.http.get(`${state}.json`);
+      const request = this.http.get(`assets/counties/${state}.json`);
       requests[state] = request;
     });
 
