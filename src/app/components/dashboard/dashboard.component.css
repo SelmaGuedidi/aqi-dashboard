@@ -1,5 +1,6 @@
 .grid-container {
     padding: 20px;
+    padding-bottom: 5px;
     background: linear-gradient(180deg, #f6fcff 0%, #d0e5fd);
   }
   .end-panel{
