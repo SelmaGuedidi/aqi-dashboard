@@ -80,7 +80,7 @@ export class InteractiveMapComponent {
     },
   };
   data$!: Observable<Map<string, number>>;
-  counties$!: Observable<any>;
+  counties!: { [key: string]: Observable<Object> };
   states$!: Observable<any>;
   stateService = inject(StateService);
   selectedElement$: Observable<string>;
@@ -97,8 +97,8 @@ export class InteractiveMapComponent {
           : elements.state ?? ''
       )
     );
-    this.states$ = http.get('assets/United States of America.json');
-    this.counties$ = this.loadCountyData();
+    this.states$ = http.get('United States of America.json');
+    this.counties = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
       switchMap((values) => combineLatest([
@@ -109,17 +109,15 @@ export class InteractiveMapComponent {
           ),
           switchMap((elements) => {
             return elements.state
-              ? this.counties$.pipe(map((counties) => counties[elements.state!]))
+              ? this.counties[elements.state!]
               : this.states$;
           })
         ), of(values)
       ]))
     ).pipe(
       map(([mapData, values]) => {
-        console.log("2",mapData)  
         if (mapData.crs){
           this.colors = this.getColorMapping(values)
-          console.log(this.colors)        
         }
         return [
           {
@@ -175,24 +173,14 @@ export class InteractiveMapComponent {
     this.stateService.setSelectedState(null);
   }
 
-  private loadCountyData(): Observable<{ [key: string]: string[] }> {
-    const requests: Observable<any>[] = [];
-
+  private loadCountyData(): { [key: string]: Observable<Object> } {
+    const requests: { [key: string]: Observable<Object> } = {};
     states.forEach((state) => {
-      const request = this.http.get(`assets/counties/${state}.json`);
-      requests.push(request);
+      const request = this.http.get(`${state}.json`);
+      requests[state] = request;
     });
 
-    return forkJoin(requests).pipe(
-      map((results: any) => {
-        const mergedMap: { [key: string]: string[] } = {};
-        results.forEach((result: any, index: number) => {
-          const state = states[index];
-          mergedMap[state] = result;
-        });
-        return mergedMap;
-      })
-    );
+    return requests;
   }
 
   getColorMapping(values: { name: string; value: number }[]) {
@@ -212,8 +200,12 @@ export class InteractiveMapComponent {
     // Generate color mapping for each range
     let colors = [];
     for (let i = 3; i >= 0; i--) {
-      const from = Math.floor(min + i * step);
-      const to = Math.floor(min + (i + 1) * step);
+      let from =parseFloat((min + i * step).toFixed(2));
+      let to = parseFloat((min + (i + 1) * step).toFixed(2));
+      if (Math.floor(from) !== Math.floor(to)){
+        from = Math.round(from)
+        to = Math.round(to)
+      }
       colors.push({ from, to, color: [catColors[i]] });
     }
 
