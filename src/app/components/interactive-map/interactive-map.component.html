@@ -23,8 +23,8 @@
   <p id="text" style="display: inline-block" >{{selectedElement$ | async}}</p>
 </div>
 <mat-card style="height: 500px">
-  <div *ngIf="(layerOptions$ | async) as layerOptions; else loading;">
-    <span *ngFor="let option of layerOptions">
+
+    <span *ngFor="let option of (layerOptions$ | async) as layerOptions">
   <ejs-maps
     #containerLayer
     (shapeSelected)="shapeSelected($event)"
@@ -36,7 +36,7 @@
     transform="scale(4)"
     style="height: 500px; width: 200px"
   >
-  </ejs-maps> </span></div>
+  </ejs-maps> </span>
 </mat-card>
 
 <ng-template #loading>
