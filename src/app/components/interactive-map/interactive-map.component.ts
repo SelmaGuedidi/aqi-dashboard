@@ -84,13 +84,16 @@ export class InteractiveMapComponent {
   states$!: Observable<any>;
   stateService = inject(StateService);
   selectedElement$: Observable<string>;
+  stateSelected = false;
   public zoomSettings: object = { enable: true, maxZoom: 20 };
 
   colors!: { from: number; to: number; color: string[] }[];
 
   constructor(private service: DataService, private http: HttpClient) {
     this.selectedElement$ = this.stateService.selectedElements$.pipe(
-      distinctUntilChanged((prev, next) => prev.state == next.state  && prev.county == next.county),
+      distinctUntilChanged(
+        (prev, next) => prev.state == next.state && prev.county == next.county
+      ),
       map((elements) =>
         elements.county
           ? elements.county + ', ' + elements.state
@@ -102,64 +105,63 @@ export class InteractiveMapComponent {
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
       switchMap((values) => {
-        return this.stateService.selectedElements$.pipe(
-          switchMap((elements) => {
-            let data = elements.state ? this.counties[elements.state!] : this.states$;
-            console.log(data)
-            return data
-          }),
-          map((mapData) => {
-            console.log("Updating Map...");
-            if (mapData.crs) {
-              this.colors = this.getColorMapping(values);
-            }
-            const layers = [
-              {
-                shapeData: mapData,
-                dataSource: values,
-                shapeDataPath: 'name',
-                shapePropertyPath: 'name',
-                tooltipSettings: {
-                  visible: true,
-                  valuePath: 'name',
-                  fill: 'black',
-                  textStyle: {
-                    color: 'white',
-                    fontFamily: 'Times New Roman',
-                    fontStyle: 'Sans-serif',
-                    fontWeight: 'Bold',
-                  },
-                  format: '<b>Name: ${name}</b><br><b>Average value: ${value}</b>',
-                },
-                highlightSettings: {
-                  enable: true,
-                  fill: '#A3B0D0',
-                },
-                selectionSettings: {
-                  enable: true,
-                  fill: '#4C515B',
-                  opacity: 1,
-                },
-                shapeSettings: {
-                  highlightColor: '#FFFFFF',
-                  border: { width: 0.6, color: 'black' },
-                  colorValuePath: 'value',
-                  colorMapping: this.colors,
-                },
+        console.log("in switch")
+        return this.stateService.state
+          ? this.counties[this.stateService.state!].pipe(
+              map((mapData) => ({ mapData, values }))
+            )
+          : this.states$.pipe(map((mapData) => ({ mapData, values })))
+        }
+      ),
+      map(({ mapData, values }) => {
+        console.log('Updating Map...');
+        if (mapData.crs) {
+          this.colors = this.getColorMapping(values);
+        }
+        const layers = [
+          {
+            shapeData: mapData,
+            dataSource: values,
+            shapeDataPath: 'name',
+            shapePropertyPath: 'name',
+            tooltipSettings: {
+              visible: true,
+              valuePath: 'name',
+              fill: 'black',
+              textStyle: {
+                color: 'white',
+                fontFamily: 'Times New Roman',
+                fontStyle: 'Sans-serif',
+                fontWeight: 'Bold',
               },
-            ];
-            console.log(layers);
-            return layers;
-          })
-        );
+              format: '<b>Name: ${name}</b><br><b>Average value: ${value}</b>',
+            },
+            highlightSettings: {
+              enable: true,
+              fill: '#A3B0D0',
+            },
+            selectionSettings: {
+              enable: true,
+              fill: '#4C515B',
+              opacity: 1,
+            },
+            shapeSettings: {
+              highlightColor: '#FFFFFF',
+              border: { width: 0.6, color: 'black' },
+              colorValuePath: 'value',
+              colorMapping: this.colors,
+            },
+          },
+        ];
+        console.log(layers);
+        return layers;
       })
     );
-    
   }
 
   public shapeSelected(args: any): void {
     this.usMapSelected = false;
-   
+
     const selectedShape: string = (args.data as any)['name'];
     if (this.stateService.state == null) {
       this.stateService.setSelectedState(selectedShape);
@@ -200,11 +202,11 @@ export class InteractiveMapComponent {
     // Generate color mapping for each range
     let colors = [];
     for (let i = 3; i >= 0; i--) {
-      let from =parseFloat((min + i * step).toFixed(2));
+      let from = parseFloat((min + i * step).toFixed(2));
       let to = parseFloat((min + (i + 1) * step).toFixed(2));
-      if (Math.floor(from) !== Math.floor(to)){
-        from = Math.round(from)
-        to = Math.round(to)
+      if (Math.floor(from) !== Math.floor(to)) {
+        from = Math.round(from);
+        to = Math.round(to);
       }
       colors.push({ from, to, color: [catColors[i]] });
     }
