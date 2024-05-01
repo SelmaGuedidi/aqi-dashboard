@@ -101,7 +101,9 @@ export class InteractiveMapComponent {
     this.counties = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
-      switchMap((values) => combineLatest([
+      switchMap((values) => { 
+        console.log(values)
+        return combineLatest([
         this.stateService.selectedElements$.pipe(
           distinctUntilChanged(
             (prev, next) =>
@@ -113,7 +115,7 @@ export class InteractiveMapComponent {
               : this.states$;
           })
         ), of(values)
-      ]))
+      ])})
     ).pipe(
       map(([mapData, values]) => {
         console.log("Updating Map...")
@@ -202,7 +204,7 @@ export class InteractiveMapComponent {
     const step = Math.abs((max - min) / 4);
 
     // Define color gradient
-    const catColors = ['#FDD835', '#F9A825', '#FF8A65', '#BD421C'];
+    const catColors = ['#26f08b', '#fffa75', '#ffb875', '#d90909'];
 
     // Generate color mapping for each range
     let colors = [];
