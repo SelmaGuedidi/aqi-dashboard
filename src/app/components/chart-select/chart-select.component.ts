@@ -39,11 +39,11 @@ export class ChartSelectComponent {
   colors = [
     '#5972ff',
     '#75daff',
+    '#ff5479',
     '#bcff75',
-    '#7775ff',
     '#ff5959',
-    '#ffbd59',
     '#a959ff',
+    '#ffbd59',
   ];
 
   chartData$!: Observable<any>;

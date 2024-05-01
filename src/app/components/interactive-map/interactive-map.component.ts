@@ -97,15 +97,15 @@ export class InteractiveMapComponent {
           : elements.state ?? ''
       )
     );
-    this.states$ = http.get('United States of America.json');
+    this.states$ = http.get('assets/United States of America.json');
     this.counties = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
       switchMap((values) => {
         console.log(values);
         return this.stateService.selectedElements$.pipe(
-          distinctUntilChanged((prev, next) => prev.state == next.state),
           switchMap((elements) => {
+            console.log("in switch map")
             return elements.state ? this.counties[elements.state!] : this.states$;
           }),
           map((mapData) => {
@@ -179,7 +179,7 @@ export class InteractiveMapComponent {
   private loadCountyData(): { [key: string]: Observable<Object> } {
     const requests: { [key: string]: Observable<Object> } = {};
     states.forEach((state) => {
-      const request = this.http.get(`${state}.json`);
+      const request = this.http.get(`assets/counties/${state}.json`);
       requests[state] = request;
     });
 
