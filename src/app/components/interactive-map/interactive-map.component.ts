@@ -101,66 +101,60 @@ export class InteractiveMapComponent {
     this.counties = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
-      switchMap((values) => { 
-        console.log(values)
-        return combineLatest([
-        this.stateService.selectedElements$.pipe(
-          distinctUntilChanged(
-            (prev, next) =>
-              prev.state == next.state 
-          ),
+      switchMap((values) => {
+        console.log(values);
+        return this.stateService.selectedElements$.pipe(
+          distinctUntilChanged((prev, next) => prev.state == next.state),
           switchMap((elements) => {
-            return elements.state
-              ? this.counties[elements.state!]
-              : this.states$;
-          })
-        ), of(values)
-      ])})
-    ).pipe(
-      map(([mapData, values]) => {
-        console.log("Updating Map...")
-        if (mapData.crs){
-          this.colors = this.getColorMapping(values)
-        }
-        const layers =  [
-          {
-            shapeData: mapData,
-            dataSource: values,
-            shapeDataPath: 'name',
-            shapePropertyPath: 'name',
-            tooltipSettings: {
-              visible: true,
-              valuePath: 'name',
-              fill: 'black',
-              textStyle: {
-                color: 'white',
-                fontFamily: 'Times New Roman',
-                fontStyle: 'Sans-serif',
-                fontWeight: 'Bold',
+            return elements.state ? this.counties[elements.state!] : this.states$;
+          }),
+          map((mapData) => {
+            console.log("Updating Map...");
+            if (mapData.crs) {
+              this.colors = this.getColorMapping(values);
+            }
+            const layers = [
+              {
+                shapeData: mapData,
+                dataSource: values,
+                shapeDataPath: 'name',
+                shapePropertyPath: 'name',
+                tooltipSettings: {
+                  visible: true,
+                  valuePath: 'name',
+                  fill: 'black',
+                  textStyle: {
+                    color: 'white',
+                    fontFamily: 'Times New Roman',
+                    fontStyle: 'Sans-serif',
+                    fontWeight: 'Bold',
+                  },
+                  format: '<b>Name: ${name}</b><br><b>Average value: ${value}</b>',
+                },
+                highlightSettings: {
+                  enable: true,
+                  fill: '#A3B0D0',
+                },
+                selectionSettings: {
+                  enable: true,
+                  fill: '#4C515B',
+                  opacity: 1,
+                },
+                shapeSettings: {
+                  highlightColor: '#FFFFFF',
+                  border: { width: 0.6, color: 'black' },
+                  colorValuePath: 'value',
+                  colorMapping: this.colors,
+                },
               },
-              format: '<b>Name: ${name}</b><br><b>Average value: ${value}</b>',
-            },
-            highlightSettings: {
-              enable: true,
-              fill: '#A3B0D0',
-            },
-            selectionSettings: {
-              enable: true,
-              fill: '#4C515B',
-              opacity: 1,
-            },
-            shapeSettings: {
-              highlightColor: '#FFFFFF',
-              border: { width: 0.6, color: 'black' },
-              colorValuePath: 'value',
-              colorMapping: this.colors,
-            },
-          },
-        ];
-        console.log(layers)
-        return layers
+            ];
+            console.log(layers);
+            return layers;
+          })
+        );
       })
     );
+    
   }
 
   public shapeSelected(args: any): void {

@@ -37,14 +37,13 @@ export class ChartSelectComponent {
   formBuilder = inject(FormBuilder);
 
   colors = [
-    'rgb(122, 228, 228)',
-    'rgb(202, 146, 239)',
-    'rgb(146, 186, 239)',
-    'rgb(239, 217, 146)',
-    'rgb(239, 146, 228)',
-    'rgb(151, 239, 146)',
-    'rgb(239, 146, 146)',
-    'rgb(146, 239, 217)',
+    '#5972ff',
+    '#75daff',
+    '#bcff75',
+    '#7775ff',
+    '#ff5959',
+    '#ffbd59',
+    '#a959ff',
   ];
 
   chartData$!: Observable<any>;
