@@ -116,6 +116,7 @@ export class InteractiveMapComponent {
       ]))
     ).pipe(
       map(([mapData, values]) => {
+        console.log("2",mapData)  
         if (mapData.crs){
           this.colors = this.getColorMapping(values)
           console.log(this.colors)        
