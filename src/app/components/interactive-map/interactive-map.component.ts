@@ -116,10 +116,11 @@ export class InteractiveMapComponent {
       ]))
     ).pipe(
       map(([mapData, values]) => {
+        console.log("Updating Map...")
         if (mapData.crs){
           this.colors = this.getColorMapping(values)
         }
-        return [
+        const layers =  [
           {
             shapeData: mapData,
             dataSource: values,
@@ -154,6 +155,8 @@ export class InteractiveMapComponent {
             },
           },
         ];
+        console.log(layers)
+        return layers
       })
     );
   }
@@ -164,8 +167,12 @@ export class InteractiveMapComponent {
     const selectedShape: string = (args.data as any)['name'];
     console.log(selectedShape)
     if (this.stateService.state == null) {
+      console.log("Updating State ...")
       this.stateService.setSelectedState(selectedShape);
-    } else this.stateService.setSelectedCounty(selectedShape);
+    } else {
+      console.log("Updating County ...")
+      this.stateService.setSelectedCounty(selectedShape);
+    }
   }
 
   returnToUSAMap() {
