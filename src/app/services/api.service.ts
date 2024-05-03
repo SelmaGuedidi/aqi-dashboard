@@ -3,22 +3,33 @@ import { Injectable, inject } from '@angular/core';
 import { switchMap, Observable, map, catchError, of } from 'rxjs';
 import { StateService, SelectedElements } from './state.service';
 
+interface QueryParams extends Partial<SelectedElements> {}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  URL = 'http://aqi-apis-flask-env.eba-mjnqwgme.us-east-2.elasticbeanstalk.com/';
+  URL =
+    'http://aqi-apis-flask-env.eba-mjnqwgme.us-east-2.elasticbeanstalk.com/';
   http = inject(HttpClient);
 
   states = inject(StateService);
 
-  get<S>(uri: string, elements: SelectedElements) {
+  get<S>(uri: string, elements: QueryParams) {
     const url = this.URL + uri;
 
-    let params = new HttpParams()
-      .set('element', elements.element)
-      .set('year', elements.year.toString())
-      .set('month', (elements.month + 1).toString());
+    let params = new HttpParams();
+    if (elements.element) {
+      params = params.set('element', elements.element);
+    }
+
+    if (elements.year) {
+      params = params.set('year', elements.year.toString());
+    }
+
+    if (elements.month !== undefined) {
+      params = params.set('month', (elements.month + 1).toString());
+    }
 
     if (elements.state) {
       params = params.set('state', elements.state);
@@ -44,8 +55,18 @@ export class ApiService {
     );
   }
 
-  averageByYear(elements: SelectedElements): Observable<{ name: string; value: number; }[]> {
-    return this.get<{ name: string; value: number; }[]>('/avg_by_year', elements);
+  averageByYear(
+    elements: SelectedElements
+  ): Observable<{ name: string; value: number }[]> {
+    
+    return this.get<{ name: string; value: number }[]>(
+      '/avg_by_year',
+      {
+        element: elements.element,
+        state: elements.state,
+        county: elements.county
+      }
+    );
   }
 
   numberOfRecords(elements: SelectedElements): Observable<string> {
@@ -61,38 +82,68 @@ export class ApiService {
   }
 
   averageValueByDay(elements: SelectedElements) {
-    return this.get<{ label: string; value: number; }[]>('/avg_by_day', elements);
-  }
-
-  averageValueBySeason(elements: SelectedElements) {
-    return this.get<{ season: string; value: number; }[]>('/avg_by_season', elements);
-  }
-
-  averageValueByHour(elements: SelectedElements) {
-    return this.get<{ label: string; value: number; }[]>('/max_hours', elements).pipe(
-      catchError(()=> of([]))
+    return this.get<{ label: string; value: number }[]>(
+      '/avg_by_day',
+      elements
     );
   }
 
-  averageValueByCounty(
-    elements: SelectedElements
-  ) {
-    return this.get<{ name: string; value: number; }[]>('/avg_by_county', elements);
+  averageValueBySeason(elements: SelectedElements) {
+    return this.get<{ season: string; value: number }[]>(
+      '/avg_by_season',
+      {
+        element: elements.element,
+        year: elements.year,
+        state: elements.state,
+        county: elements.county
+      }
+    );
   }
 
-  averageValueByState(
-    elements : SelectedElements
-  ) {
-    return this.get<{ name: string; value: number; }[]>('/avg_by_state', elements);
+  averageValueByHour(elements: SelectedElements) {
+    return this.get<{ label: string; value: number }[]>(
+      '/max_hours',
+      elements
+    ).pipe(catchError(() => of([])));
   }
-  airQualityCategory(
-    elements : SelectedElements
-  ) {
-    return this.get<{ name: string; value: number; }[]>('/air_quality_category', elements);
+
+  averageValueByCounty(elements: SelectedElements) {
+    return this.get<{ name: string; value: number }[]>(
+      '/avg_by_county',
+      {
+        year: elements.year,
+        element: elements.element,
+        month: elements.month,
+        state: elements.state
+      }
+    );
   }
-  airQualityComparaison(
-    elements : SelectedElements
-  ) {
-    return this.get<{ name: string; value: number; }[]>('/air_quality_comparaison', elements);
+
+  averageValueByState(elements: SelectedElements) {
+    return this.get<{ name: string; value: number }[]>(
+      '/avg_by_state',
+      {
+        year: elements.year,
+        element: elements.element,
+        month: elements.month
+      }
+    );
+  }
+  airQualityCategory(elements: SelectedElements) {
+    return this.get<{ name: string; value: number }[]>(
+      '/air_quality_category',
+      elements
+    );
+  }
+  airQualityComparaison(elements: SelectedElements) {
+    return this.get<{ name: string; value: number }[]>(
+      '/air_quality_comparaison',
+      {
+        year: elements.year,
+        state: elements.state,
+        month: elements.month,
+        county: elements.county
+      }
+    );
   }
 }
