@@ -57,7 +57,7 @@ export class InteractiveMapComponent {
   public layerOptions$: Observable<any[]>;
   @ViewChild('maps') maps!: MapsComponent;
 
-  loading$ = new BehaviorSubject(true)
+  loading$ = new BehaviorSubject(true);
   usMapSelected = true;
 
   public LegendOptions: Object = {
@@ -73,7 +73,6 @@ export class InteractiveMapComponent {
     invertedPointer: true,
     textStyle: {
       size: '14px',
-
       fontFamily: 'Times New Roman',
       fontStyle: 'Sans-serif',
       fontWeight: 'Bold',
@@ -113,9 +112,8 @@ export class InteractiveMapComponent {
           ? this.counties[this.stateService.state!].pipe(
               map((mapData) => ({ mapData, values }))
             )
-          : this.states$.pipe(map((mapData) => ({ mapData, values })))
-        }
-      ),
+          : this.states$.pipe(map((mapData) => ({ mapData, values })));
+      }),
       map(({ mapData, values }) => {
         if (mapData.crs) {
           this.colors = this.getColorMapping(values);
@@ -157,7 +155,7 @@ export class InteractiveMapComponent {
         ];
         return layers;
       }),
-      tap(()=> this.loading$.next(false))
+      tap(() => this.loading$.next(false))
     );
   }
 
@@ -166,7 +164,7 @@ export class InteractiveMapComponent {
 
     const selectedShape: string = (args.data as any)['name'];
     if (this.stateService.state == null) {
-      this.loading$.next(true)
+      this.loading$.next(true);
       this.stateService.setSelectedState(selectedShape);
     } else {
       if (selectedShape !== this.stateService.county)
@@ -176,7 +174,7 @@ export class InteractiveMapComponent {
   }
 
   returnToUSAMap() {
-    this.loading$.next(true)
+    this.loading$.next(true);
     this.usMapSelected = true;
     this.stateService.setSelectedState(null);
   }
@@ -200,7 +198,7 @@ export class InteractiveMapComponent {
     const min = Math.min(...values.map((value) => value.value));
     const max = Math.max(...values.map((value) => value.value));
 
-    const step = Math.abs((max - min) / 4);
+    const step = (max - min) / 4;
 
     // Define color gradient
     const catColors = ['#26f08b', '#fffa75', '#ffb875', '#d90909'];
@@ -208,12 +206,20 @@ export class InteractiveMapComponent {
     // Generate color mapping for each range
     let colors = [];
     for (let i = 3; i >= 0; i--) {
-      let from = parseFloat((min + i * step).toFixed(2)) - 0.01;
-      let to = parseFloat((min + (i + 1) * step).toFixed(2)) + 0.01;
+      let from = parseFloat((min + i * step).toFixed(2));
+      let to = parseFloat((min + (i + 1) * step).toFixed(2));
       if (Math.floor(from) !== Math.floor(to)) {
-        from = Math.trunc(from) - 1;
-        to = Math.trunc(to) + 1;
+        from = Math.trunc(from);
+        to = Math.trunc(to);
+        if (i == 3) to += 1;
+
+        if (i == 0) from -= 1;
+      } else if (i == 3) {
+        to = parseFloat((to + 0.01).toFixed(2));
+      } else if (i == 0) {
+        from = parseFloat((from - 0.01).toFixed(2));
       }
+
       colors.push({ from, to, color: [catColors[i]] });
     }
 
