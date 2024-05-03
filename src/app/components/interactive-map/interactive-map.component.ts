@@ -103,7 +103,7 @@ export class InteractiveMapComponent {
           : elements.state ?? ''
       )
     );
-    this.states$ = http.get('assets/United States of America.json');
+    this.states$ = http.get('United States of America.json');
     this.counties = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
