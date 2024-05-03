@@ -49,10 +49,11 @@ export class ChartSelectComponent {
   chartData$!: Observable<any>;
   chartForm!: FormGroup;
 
-  chartNumbers = [0, 1, 2, 3, 4];
-  chartTypes = ['doughnut', 'bar', 'bar', 'bar', 'pie'];
+  chartNumbers = [0, 1, 2, 3, 4, 5];
+  chartTypes = ['doughnut', 'bar', 'bar', 'bar', 'bar', 'pie'];
   chartData = [
     this.dataService.categories$,
+    this.dataService.avgValuesByYear$,
     this.dataService.avgValuesByDay$,
     this.dataService.avgValueBySeason$,
     this.dataService.maxCountByHour$,
@@ -60,6 +61,7 @@ export class ChartSelectComponent {
   ];
   chartTitles = [
     'Levels of concern across the USA',
+    'Air Quality through the years',
     'Air Quality Daily Trends',
     'Air Quality Seasonal Trends',
     'Air Quality Hourly Trends',

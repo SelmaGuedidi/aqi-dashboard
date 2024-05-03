@@ -27,8 +27,6 @@ export class ApiService {
       }
     }
 
-    
-
     return this.http.get<S>(url, { params });
   }
 
@@ -44,6 +42,10 @@ export class ApiService {
     return this.get<{ average_value: string }>('/average_value', elements).pipe(
       map((val) => parseFloat(val.average_value).toFixed(2))
     );
+  }
+
+  averageByYear(elements: SelectedElements): Observable<{ name: string; value: number; }[]> {
+    return this.get<{ name: string; value: number; }[]>('/avg_by_year', elements);
   }
 
   numberOfRecords(elements: SelectedElements): Observable<string> {

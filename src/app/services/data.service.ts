@@ -16,6 +16,7 @@ export class DataService {
   avgValueBySeason$: Observable<{ season: string; value: number }[]> = of([]);
   avgValuesByName$: Observable<{ name: string; value: number }[]> = of([]);
   avgValuesByDay$: Observable<{ label: string; value: number }[]>;
+  avgValuesByYear$: Observable<{ name: string; value: number }[]> = of([]);
   maxCountByHour$: Observable<{ label: string; value: number }[]>;
 
   pollutionElements$: Observable<{ name: string; value: number }[]> = of([]);
@@ -52,6 +53,13 @@ export class DataService {
     this.avgValuesByName$ = selectedElements$.pipe(
       distinctUntilChanged((prev, next)=> !(prev.county == next.county)),
       switchMap((elements) => this.apiService.averageValueByName(elements).pipe(
+        catchError(()=> of([]))
+      ))
+    )
+
+    this.avgValuesByYear$ = selectedElements$.pipe(
+      distinctUntilChanged((prev, next)=> prev.county == next.county && prev.element == next.element && prev.state == next.state),
+      switchMap((elements) => this.apiService.averageByYear(elements).pipe(
         catchError(()=> of([]))
       ))
     )
