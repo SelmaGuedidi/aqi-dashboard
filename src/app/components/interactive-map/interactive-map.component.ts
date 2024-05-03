@@ -208,11 +208,11 @@ export class InteractiveMapComponent {
     // Generate color mapping for each range
     let colors = [];
     for (let i = 3; i >= 0; i--) {
-      let from = parseFloat((min + i * step).toFixed(2));
-      let to = parseFloat((min + (i + 1) * step).toFixed(2));
+      let from = parseFloat((min + i * step).toFixed(2)) - 0.01;
+      let to = parseFloat((min + (i + 1) * step).toFixed(2)) + 0.01;
       if (Math.floor(from) !== Math.floor(to)) {
-        from = Math.round(from);
-        to = Math.round(to);
+        from = Math.trunc(from) - 1;
+        to = Math.trunc(to) + 1;
       }
       colors.push({ from, to, color: [catColors[i]] });
     }
