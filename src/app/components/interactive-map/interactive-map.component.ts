@@ -13,7 +13,7 @@ import {
 } from '@syncfusion/ej2-angular-maps';
 import { DataService } from '../../services/data.service';
 import { StateService } from '../../services/state.service';
-
+import usaData from '../../../assets/United States of America.json';
 import {
   BehaviorSubject,
   Observable,
@@ -103,7 +103,7 @@ export class InteractiveMapComponent {
           : elements.state ?? ''
       )
     );
-    this.states$ = http.get('United States of America.json');
+    this.states$ = of(usaData);
     this.counties = this.loadCountyData();
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
@@ -182,7 +182,7 @@ export class InteractiveMapComponent {
   private loadCountyData(): { [key: string]: Observable<Object> } {
     const requests: { [key: string]: Observable<Object> } = {};
     states.forEach((state) => {
-      const request = this.http.get(`${state}.json`);
+      const request = of(require(`../../../assets/counties/${state}.json`));
       requests[state] = request;
     });
 
