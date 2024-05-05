@@ -117,6 +117,12 @@ export class InteractiveMapComponent {
       map(({ mapData, values }) => {
         if (mapData.crs) {
           this.colors = this.getColorMapping(values);
+          //console.log("values",values)
+
+          values= values.map(item => ({
+            name: item.name,
+            value: Math.round(item.value * 100) / 100
+        }));
         }
         const layers = [
           {
@@ -226,3 +232,4 @@ export class InteractiveMapComponent {
     return colors;
   }
 }
+
