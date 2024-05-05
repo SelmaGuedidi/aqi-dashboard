@@ -17,10 +17,8 @@ import usaData from '../../../assets/United States of America.json';
 import {
   BehaviorSubject,
   Observable,
-  Subject,
-  combineLatest,
+
   distinctUntilChanged,
-  forkJoin,
   map,
   of,
   switchMap,
@@ -108,6 +106,10 @@ export class InteractiveMapComponent {
 
     this.layerOptions$ = this.service.avgValuesByName$.pipe(
       switchMap((values) => {
+        values= values.map(item => ({
+          name: item.name,
+          value: Math.round(item.value * 100) / 100
+      }));
         return this.stateService.state
           ? this.counties[this.stateService.state!].pipe(
               map((mapData) => ({ mapData, values }))
@@ -117,12 +119,9 @@ export class InteractiveMapComponent {
       map(({ mapData, values }) => {
         if (mapData.crs) {
           this.colors = this.getColorMapping(values);
-          //console.log("values",values)
+       
 
-          values= values.map(item => ({
-            name: item.name,
-            value: Math.round(item.value * 100) / 100
-        }));
+
         }
         const layers = [
           {
