@@ -70,28 +70,29 @@ export class ChartSelectComponent {
 
   isLoading$ = new Subject<boolean>();
 
-
   ngOnInit() {
     this.chartForm = this.formBuilder.group({
       selectedTitle: [0], // Initial value
     });
 
-    this.chartData$ = this.chartForm.valueChanges.pipe(
-      startWith({ selectedTitle: 0 }), // Emit initial value
-      tap(()=> this.isLoading$.next(true)),
-      map((source) => source.selectedTitle),
-      switchMap((value) =>
-        combineLatest([this.chartData[value], of(value)]).pipe(
-          catchError(() => of([[], value]))
-        )
-      ),
-      map(([chartData, value]) => ({
-        title: this.chartTitles[value],
-        data: chartData,
-        type: this.chartTypes[value],
-      })),
-      tap(()=> this.isLoading$.next(false)),
-    );
+    setTimeout(() => {
+      this.chartData$ = this.chartForm.valueChanges.pipe(
+        startWith({ selectedTitle: 0 }), // Emit initial value
+        tap(() => this.isLoading$.next(true)),
+        map((source) => source.selectedTitle),
+        switchMap((value) =>
+          combineLatest([this.chartData[value], of(value)]).pipe(
+            catchError(() => of([[], value]))
+          )
+        ),
+        map(([chartData, value]) => ({
+          title: this.chartTitles[value],
+          data: chartData,
+          type: this.chartTypes[value],
+        })),
+        tap(() => this.isLoading$.next(false)),
+      );
+    });
   }
 
   getValues(list: any[], key: string): any[] {
