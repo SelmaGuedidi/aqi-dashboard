@@ -11,6 +11,10 @@ phases:
     commands:
         - echo Installing source NPM dependencies...
         - npm install
+  test:
+    commands:
+        - echo Running tests...
+        - npm run test:headless
   build:
     commands:
         - echo Build started 
